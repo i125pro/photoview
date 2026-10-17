@@ -48,6 +48,9 @@ export const MY_TIMELINE_QUERY = gql`
       videoWeb {
         url
       }
+      livePhotoVideo {
+        url
+      }
       favorite
       album {
         id

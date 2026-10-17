@@ -64,3 +64,27 @@ func TestFindRawCounterpart(t *testing.T) {
 		}
 	}
 }
+
+func TestFindLivePhotoCounterpart(t *testing.T) {
+	tmpDir := t.TempDir()
+	photoPath := filepath.Join(tmpDir, "IMG_1001.HEIC")
+	videoPath := filepath.Join(tmpDir, "IMG_1001.MOV")
+
+	if err := os.WriteFile(photoPath, []byte("fake-heic"), 0644); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(videoPath, []byte("fake-mov"), 0644); err != nil {
+		t.Fatal(err)
+	}
+
+	foundVideo, ok := FindLivePhotoVideoCounterpart(photoPath)
+	if !ok || foundVideo != videoPath {
+		t.Errorf("FindLivePhotoVideoCounterpart(%q) = (%q, %v), want (%q, true)", photoPath, foundVideo, ok, videoPath)
+	}
+
+	foundPhoto, ok := FindLivePhotoImageCounterpart(videoPath)
+	if !ok || foundPhoto != photoPath {
+		t.Errorf("FindLivePhotoImageCounterpart(%q) = (%q, %v), want (%q, true)", videoPath, foundPhoto, ok, photoPath)
+	}
+}
+

@@ -55,6 +55,9 @@ export const SHARE_TOKEN_QUERY = gql`
           width
           height
         }
+        livePhotoVideo {
+          url
+        }
         exif {
           id
           description

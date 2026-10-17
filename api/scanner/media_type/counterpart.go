@@ -22,6 +22,30 @@ func FindRawCounterpart(imagePath string) (string, bool) {
 	})
 }
 
+// FindLivePhotoVideoCounterpart returns the companion video path if the file `imagePath` has a companion video (e.g. .mov, .mp4).
+func FindLivePhotoVideoCounterpart(imagePath string) (string, bool) {
+	return findCounterpart(imagePath, func(filename string) bool {
+		ext := strings.ToLower(path.Ext(filename))
+		if ext == ".mov" || ext == ".mp4" || ext == ".m4v" {
+			return true
+		}
+		mt := GetMediaType(filename)
+		return mt.IsVideo()
+	})
+}
+
+// FindLivePhotoImageCounterpart returns the companion image path if the file `videoPath` is a companion video for an image (e.g. .heic, .jpg).
+func FindLivePhotoImageCounterpart(videoPath string) (string, bool) {
+	return findCounterpart(videoPath, func(filename string) bool {
+		ext := strings.ToLower(path.Ext(filename))
+		if ext == ".heic" || ext == ".heif" || ext == ".jpg" || ext == ".jpeg" || ext == ".png" || ext == ".dng" {
+			return true
+		}
+		mt := GetMediaType(filename)
+		return mt.IsImage()
+	})
+}
+
 func findCounterpart(filename string, acceptFn func(filepath string) bool) (string, bool) {
 	ext := path.Ext(filename)
 	filenamePattern := strings.TrimSuffix(filename, ext) + ".*"
@@ -32,7 +56,7 @@ func findCounterpart(filename string, acceptFn func(filepath string) bool) (stri
 	}
 
 	for _, f := range filenames {
-		if f == filename {
+		if strings.EqualFold(f, filename) {
 			continue
 		}
 

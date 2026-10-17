@@ -80,3 +80,16 @@ func NewVideoWebMediaURLLoader(db *gorm.DB) *MediaURLLoader {
 		}),
 	}
 }
+
+func NewLivePhotoVideoMediaURLLoader(db *gorm.DB) *MediaURLLoader {
+	return &MediaURLLoader{
+		maxBatch: 100,
+		wait:     5 * time.Millisecond,
+		fetch: makeMediaURLLoader(db, func(query *gorm.DB) *gorm.DB {
+			return query.
+				Where("purpose = ?", models.LivePhotoVideo).
+				Order("media_id ASC")
+		}),
+	}
+}
+

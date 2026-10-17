@@ -42,6 +42,15 @@ func (r *mediaResolver) VideoWeb(ctx context.Context, obj *models.Media) (*model
 	return dataloader.For(ctx).MediaVideoWeb.Load(obj.ID)
 }
 
+// LivePhotoVideo is the resolver for the livePhotoVideo field.
+func (r *mediaResolver) LivePhotoVideo(ctx context.Context, obj *models.Media) (*models.MediaURL, error) {
+	if obj.Type != models.MediaTypePhoto || obj.LivePhotoPath == nil {
+		return nil, nil
+	}
+
+	return dataloader.For(ctx).MediaLivePhotoVideo.Load(obj.ID)
+}
+
 // Album is the resolver for the album field.
 func (r *mediaResolver) Album(ctx context.Context, obj *models.Media) (*models.Album, error) {
 	var album models.Album

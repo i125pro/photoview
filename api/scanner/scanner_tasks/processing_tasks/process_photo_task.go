@@ -7,6 +7,7 @@ import (
 	"github.com/photoview/photoview/api/graphql/models"
 	"github.com/photoview/photoview/api/log"
 	"github.com/photoview/photoview/api/scanner/media_encoding"
+	"github.com/photoview/photoview/api/scanner/media_type"
 	"github.com/photoview/photoview/api/scanner/scanner_task"
 	"github.com/pkg/errors"
 )
@@ -119,6 +120,57 @@ func (t ProcessPhotoTask) ProcessMedia(ctx scanner_task.TaskContext, mediaData *
 			if err != nil {
 				return []*models.MediaURL{}, errors.Wrap(err, "could not create thumbnail cached image")
 			}
+		}
+	}
+
+	// Process Live Photo companion video if present
+	if liveVideoPath, ok := media_type.FindLivePhotoVideoCounterpart(photo.Path); ok {
+		if photo.LivePhotoPath == nil || *photo.LivePhotoPath != liveVideoPath {
+			photo.LivePhotoPath = &liveVideoPath
+			if err := ctx.GetDB().Model(photo).Update("live_photo_path", liveVideoPath).Error; err != nil {
+				return []*models.MediaURL{}, errors.Wrap(err, "updating photo live_photo_path in database")
+			}
+		}
+
+		livePhotoURL, err := photoURLFromDB(models.LivePhotoVideo)
+		if err != nil {
+			return []*models.MediaURL{}, errors.Wrap(err, "error checking photo live_photo_video url")
+		}
+
+		if livePhotoURL == nil {
+			fileStats, err := os.Stat(liveVideoPath)
+			if err == nil {
+				mediaName := generateUniqueMediaNamePrefixed("live_video", liveVideoPath, path.Ext(liveVideoPath))
+				videoType := media_type.GetMediaType(liveVideoPath)
+				contentType := videoType.String()
+				if contentType == "unknown" {
+					contentType = "video/mp4"
+				}
+
+				liveMediaURL := models.MediaURL{
+					MediaID:     photo.ID,
+					MediaName:   mediaName,
+					Width:       0,
+					Height:      0,
+					Purpose:     models.LivePhotoVideo,
+					ContentType: contentType,
+					FileSize:    fileStats.Size(),
+				}
+
+				if err := ctx.GetDB().Create(&liveMediaURL).Error; err != nil {
+					return []*models.MediaURL{}, errors.Wrap(err, "saving live photo url to database")
+				}
+
+				updatedURLs = append(updatedURLs, &liveMediaURL)
+			}
+		}
+	} else if photo.LivePhotoPath != nil {
+		photo.LivePhotoPath = nil
+		if err := ctx.GetDB().Model(photo).Update("live_photo_path", nil).Error; err != nil {
+			return []*models.MediaURL{}, errors.Wrap(err, "clearing photo live_photo_path in database")
+		}
+		if err := ctx.GetDB().Where("media_id = ? AND purpose = ?", photo.ID, models.LivePhotoVideo).Delete(&models.MediaURL{}).Error; err != nil {
+			return []*models.MediaURL{}, errors.Wrap(err, "deleting old live photo video urls from database")
 		}
 	}
 

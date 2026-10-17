@@ -94,22 +94,23 @@ type ComplexityRoot struct {
 	}
 
 	Media struct {
-		Album         func(childComplexity int) int
-		Blurhash      func(childComplexity int) int
-		Date          func(childComplexity int) int
-		Downloads     func(childComplexity int) int
-		Exif          func(childComplexity int) int
-		Faces         func(childComplexity int) int
-		Favorite      func(childComplexity int) int
-		HighRes       func(childComplexity int) int
-		ID            func(childComplexity int) int
-		Path          func(childComplexity int) int
-		Shares        func(childComplexity int) int
-		Thumbnail     func(childComplexity int) int
-		Title         func(childComplexity int) int
-		Type          func(childComplexity int) int
-		VideoMetadata func(childComplexity int) int
-		VideoWeb      func(childComplexity int) int
+		Album          func(childComplexity int) int
+		Blurhash       func(childComplexity int) int
+		Date           func(childComplexity int) int
+		Downloads      func(childComplexity int) int
+		Exif           func(childComplexity int) int
+		Faces          func(childComplexity int) int
+		Favorite       func(childComplexity int) int
+		HighRes        func(childComplexity int) int
+		ID             func(childComplexity int) int
+		LivePhotoVideo func(childComplexity int) int
+		Path           func(childComplexity int) int
+		Shares         func(childComplexity int) int
+		Thumbnail      func(childComplexity int) int
+		Title          func(childComplexity int) int
+		Type           func(childComplexity int) int
+		VideoMetadata  func(childComplexity int) int
+		VideoWeb       func(childComplexity int) int
 	}
 
 	MediaDownload struct {
@@ -297,6 +298,7 @@ type MediaResolver interface {
 	Thumbnail(ctx context.Context, obj *models.Media) (*models.MediaURL, error)
 	HighRes(ctx context.Context, obj *models.Media) (*models.MediaURL, error)
 	VideoWeb(ctx context.Context, obj *models.Media) (*models.MediaURL, error)
+	LivePhotoVideo(ctx context.Context, obj *models.Media) (*models.MediaURL, error)
 	Album(ctx context.Context, obj *models.Media) (*models.Album, error)
 	Exif(ctx context.Context, obj *models.Media) (*models.MediaEXIF, error)
 
@@ -625,6 +627,12 @@ func (e *executableSchema) Complexity(ctx context.Context, typeName, field strin
 		}
 
 		return e.ComplexityRoot.Media.ID(childComplexity), true
+	case "Media.livePhotoVideo":
+		if e.ComplexityRoot.Media.LivePhotoVideo == nil {
+			break
+		}
+
+		return e.ComplexityRoot.Media.LivePhotoVideo(childComplexity), true
 	case "Media.path":
 		if e.ComplexityRoot.Media.Path == nil {
 			break
@@ -1773,6 +1781,8 @@ func (ec *executionContext) childFields_Media(ctx context.Context, field graphql
 		return ec.fieldContext_Media_highRes(ctx, field)
 	case "videoWeb":
 		return ec.fieldContext_Media_videoWeb(ctx, field)
+	case "livePhotoVideo":
+		return ec.fieldContext_Media_livePhotoVideo(ctx, field)
 	case "album":
 		return ec.fieldContext_Media_album(ctx, field)
 	case "exif":
@@ -3948,6 +3958,38 @@ func (ec *executionContext) _Media_videoWeb(ctx context.Context, field graphql.C
 	)
 }
 func (ec *executionContext) fieldContext_Media_videoWeb(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "Media",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.childFields_MediaURL(ctx, field)
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _Media_livePhotoVideo(ctx context.Context, field graphql.CollectedField, obj *models.Media) (ret graphql.Marshaler) {
+	return graphql.ResolveField(
+		ctx,
+		ec.OperationContext,
+		field,
+		func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return ec.fieldContext_Media_livePhotoVideo(ctx, field)
+		},
+		func(ctx context.Context) (any, error) {
+			return ec.Resolvers.Media().LivePhotoVideo(ctx, obj)
+		},
+		nil,
+		func(ctx context.Context, selections ast.SelectionSet, v *models.MediaURL) graphql.Marshaler {
+			return ec.marshalOMediaURL2ᚖgithubᚗcomᚋphotoviewᚋphotoviewᚋapiᚋgraphqlᚋmodelsᚐMediaURL(ctx, selections, v)
+		},
+		true,
+		false,
+	)
+}
+func (ec *executionContext) fieldContext_Media_livePhotoVideo(_ context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "Media",
 		Field:      field,
@@ -10258,6 +10300,44 @@ func (ec *executionContext) _Media(ctx context.Context, sel ast.SelectionSet, ob
 					}
 				}()
 				res = ec._Media_videoWeb(ctx, field, obj)
+				if res == graphql.RequiredNull {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.IsDeferred() {
+				deferredFieldSet.AddField(field)
+				fieldIndex := len(deferredFieldSet.Values) - 1
+				deferredFieldSet.Concurrently(fieldIndex, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, deferredFieldSet)
+				})
+
+				for _, deferrable := range field.Deferrables {
+					view, ok := deferLabelToView[deferrable.Label]
+					if !ok {
+						view = deferredFieldSet.NewView()
+						deferLabelToView[deferrable.Label] = view
+					}
+					view.AddIndices(fieldIndex)
+				}
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "livePhotoVideo":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._Media_livePhotoVideo(ctx, field, obj)
 				if res == graphql.RequiredNull {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

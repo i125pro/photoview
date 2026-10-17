@@ -30,6 +30,7 @@ type Media struct {
 	SideCarHash     *string      `gorm:"unique"`
 	Faces           []*ImageFace `gorm:"constraint:OnDelete:CASCADE;"`
 	Blurhash        *string      `gorm:""`
+	LivePhotoPath   *string      `gorm:""`
 }
 
 func (Media) TableName() string {
@@ -101,6 +102,7 @@ const (
 	MediaOriginal  MediaPurpose = "original"
 	VideoWeb       MediaPurpose = "video-web"
 	VideoThumbnail MediaPurpose = "video-thumbnail"
+	LivePhotoVideo MediaPurpose = "live-photo-video"
 )
 
 type MediaURL struct {
@@ -118,10 +120,10 @@ type MediaURL struct {
 func (p *MediaURL) URL() string {
 
 	imageURL := utils.ApiEndpointUrl()
-	if p.Purpose != VideoWeb {
-		imageURL.Path = path.Join(imageURL.Path, "photo", p.MediaName)
-	} else {
+	if p.Purpose == VideoWeb || p.Purpose == LivePhotoVideo {
 		imageURL.Path = path.Join(imageURL.Path, "video", p.MediaName)
+	} else {
+		imageURL.Path = path.Join(imageURL.Path, "photo", p.MediaName)
 	}
 
 	return imageURL.String()
@@ -139,6 +141,11 @@ func (p *MediaURL) CachedPath() (string, error) {
 			p.MediaName)
 	} else if p.Purpose == MediaOriginal {
 		cachedPath = p.Media.Path
+	} else if p.Purpose == LivePhotoVideo {
+		if p.Media.LivePhotoPath == nil {
+			return "", errors.New("live photo video path is nil")
+		}
+		cachedPath = *p.Media.LivePhotoPath
 	} else {
 		return "", errors.New(fmt.Sprintf("cannot determine cache path for purpose (%s)", p.Purpose))
 	}

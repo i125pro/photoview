@@ -21,6 +21,13 @@ func (t CounterpartFilesTask) MediaFound(ctx scanner_task.TaskContext, fileInfo 
 		return true, nil
 	}
 
+	if fileType.IsVideo() {
+		_, existed := media_type.FindLivePhotoImageCounterpart(mediaPath)
+		if existed {
+			return true, nil
+		}
+	}
+
 	if utils.EnvDisableRawProcessing.GetBool() {
 		if !fileType.IsWebCompatible() {
 			return true, nil

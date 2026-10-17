@@ -66,6 +66,9 @@ export const SHARE_ALBUM_QUERY = gql`
         videoWeb {
           url
         }
+        livePhotoVideo {
+          url
+        }
         exif {
           id
           description

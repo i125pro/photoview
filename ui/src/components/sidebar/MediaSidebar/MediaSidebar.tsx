@@ -53,6 +53,9 @@ export const SIDEBAR_MEDIA_QUERY = gql`
         width
         height
       }
+      livePhotoVideo {
+        url
+      }
       videoMetadata {
         id
         width
@@ -256,6 +259,10 @@ export interface MediaSidebarMedia {
     url: string
     width?: number
     height?: number
+  }
+  livePhotoVideo?: null | {
+    __typename: 'MediaURL'
+    url: string
   }
   videoMetadata?: sidebarMediaQuery_media_videoMetadata | null
   exif?: sidebarMediaQuery_media_exif | null

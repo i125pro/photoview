@@ -41,6 +41,14 @@ export interface MediaGalleryFields_videoWeb {
   url: string;
 }
 
+export interface MediaGalleryFields_livePhotoVideo {
+  __typename: "MediaURL";
+  /**
+   * URL for previewing the image
+   */
+  url: string;
+}
+
 export interface MediaGalleryFields {
   __typename: "Media";
   id: string;
@@ -61,5 +69,10 @@ export interface MediaGalleryFields {
    * URL to get the video in a web format that can be played in the browser, will be null for photos
    */
   videoWeb: MediaGalleryFields_videoWeb | null;
+  /**
+   * URL to get the live photo companion video if this photo is a Live Photo
+   */
+  livePhotoVideo: MediaGalleryFields_livePhotoVideo | null;
   favorite: boolean;
 }
+

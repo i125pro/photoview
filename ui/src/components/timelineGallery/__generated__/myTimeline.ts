@@ -49,6 +49,14 @@ export interface myTimeline_myTimeline_videoWeb {
   url: string;
 }
 
+export interface myTimeline_myTimeline_livePhotoVideo {
+  __typename: "MediaURL";
+  /**
+   * URL for previewing the image
+   */
+  url: string;
+}
+
 export interface myTimeline_myTimeline_album {
   __typename: "Album";
   id: string;
@@ -76,6 +84,10 @@ export interface myTimeline_myTimeline {
    * URL to get the video in a web format that can be played in the browser, will be null for photos
    */
   videoWeb: myTimeline_myTimeline_videoWeb | null;
+  /**
+   * URL to get the live photo companion video if this photo is a Live Photo
+   */
+  livePhotoVideo: myTimeline_myTimeline_livePhotoVideo | null;
   favorite: boolean;
   /**
    * The album that holds the media

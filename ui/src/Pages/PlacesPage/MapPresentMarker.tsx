@@ -31,6 +31,9 @@ const QUERY_MEDIA = gql`
         width
         height
       }
+      livePhotoVideo {
+        url
+      }
       type
     }
   }

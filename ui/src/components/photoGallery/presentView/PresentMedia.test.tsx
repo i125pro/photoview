@@ -13,6 +13,7 @@ test('render present image', () => {
     highRes: null,
     blurhash: null,
     videoWeb: null,
+    livePhotoVideo: null,
     favorite: false,
     thumbnail: {
       __typename: 'MediaURL',
@@ -40,6 +41,7 @@ test('render present video', () => {
     type: MediaType.Video,
     highRes: null,
     blurhash: null,
+    livePhotoVideo: null,
     favorite: false,
     videoWeb: {
       __typename: 'MediaURL',
@@ -63,4 +65,35 @@ test('render present video', () => {
   expect(
     screen.getByTestId('present-video').querySelector('source')
   ).toHaveAttribute('src', 'http://localhost:3000/sample_video.mp4')
+})
+
+test('render present live photo', () => {
+  const media: MediaGalleryFields = {
+    __typename: 'Media',
+    id: '124',
+    type: MediaType.Photo,
+    highRes: null,
+    blurhash: null,
+    videoWeb: null,
+    livePhotoVideo: {
+      __typename: 'MediaURL',
+      url: '/sample_live_video.mov',
+    },
+    favorite: false,
+    thumbnail: {
+      __typename: 'MediaURL',
+      url: '/sample_image.jpg',
+      width: 300,
+      height: 200,
+    },
+  }
+
+  render(<PresentMedia media={media} />)
+
+  expect(screen.getByTestId('present-img-thumbnail')).toBeInTheDocument()
+  expect(screen.getByTestId('present-live-video')).toHaveAttribute(
+    'src',
+    'http://localhost:3000/sample_live_video.mov'
+  )
+  expect(screen.getByText('LIVE')).toBeInTheDocument()
 })

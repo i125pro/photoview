@@ -83,6 +83,8 @@ type Media {
   highRes: MediaURL
   "URL to get the video in a web format that can be played in the browser, will be null for photos"
   videoWeb: MediaURL
+  "URL to get the live photo companion video if available, null for regular photos and videos"
+  livePhotoVideo: MediaURL
   "The album that holds the media"
   album: Album!
   exif: MediaEXIF

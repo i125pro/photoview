@@ -136,6 +136,43 @@ const VideoThumbnailIcon = styled(VideoThumbnailIconSVG)`
   top: calc(50% - 22px);
 `
 
+const LivePhotoBadge = styled.div`
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  background-color: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(4px);
+  color: white;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  line-height: 1;
+  pointer-events: none;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+`
+
+const LivePhotoIconSVG = () => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
+    <circle cx="12" cy="12" r="9" strokeDasharray="3 3" />
+    <circle cx="12" cy="12" r="5" />
+    <circle cx="12" cy="12" r="1.5" fill="currentColor" />
+  </svg>
+)
+
 type MediaThumbnailProps = {
   media: MediaGalleryFields
   active: boolean
@@ -169,6 +206,16 @@ export const MediaThumbnail = ({
     videoIcon = <VideoThumbnailIcon />
   }
 
+  let livePhotoBadge = null
+  if (media.type === MediaType.Photo && media.livePhotoVideo) {
+    livePhotoBadge = (
+      <LivePhotoBadge title="Live Photo">
+        <LivePhotoIconSVG />
+        <span>LIVE</span>
+      </LivePhotoBadge>
+    )
+  }
+
   let minWidth = 100
   if (media.thumbnail) {
     minWidth = Math.floor(
@@ -197,6 +244,7 @@ export const MediaThumbnail = ({
         <LazyPhoto src={media.thumbnail?.url} blurhash={media.blurhash} />
       </div>
       <PhotoOverlay active={active}>
+        {livePhotoBadge}
         {videoIcon}
         <SidebarIcon
           onClick={e => {

@@ -13,6 +13,7 @@ const makeMedia = (id: string): MediaGalleryFields => ({
   highRes: null,
   blurhash: null,
   videoWeb: null,
+  livePhotoVideo: null,
   favorite: false,
   thumbnail: {
     __typename: 'MediaURL',

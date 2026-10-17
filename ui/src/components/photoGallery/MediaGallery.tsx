@@ -50,6 +50,9 @@ export const MEDIA_GALLERY_FRAGMENT = gql`
     videoWeb {
       url
     }
+    livePhotoVideo {
+      url
+    }
     favorite
   }
 `

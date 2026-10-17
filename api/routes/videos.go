@@ -31,7 +31,7 @@ func handleVideoRequest(
 	var mediaURLs []models.MediaURL
 	if err := db.Model(&models.MediaURL{}).
 		Preload("Media").
-		Where("media_urls.media_name = ? AND media_urls.purpose = ?", mediaName, models.VideoWeb).
+		Where("media_urls.media_name = ? AND media_urls.purpose IN (?)", mediaName, []models.MediaPurpose{models.VideoWeb, models.LivePhotoVideo}).
 		Order("created_at DESC").
 		Find(&mediaURLs).
 		Error; err != nil || len(mediaURLs) == 0 || mediaURLs[0].Media == nil {
@@ -69,6 +69,15 @@ func handleVideoRequest(
 	if mediaURL.Purpose == models.VideoWeb {
 		// Use the provided cache path function
 		cachedPath = getCachePathFn(int(media.AlbumID), int(mediaURL.MediaID), mediaURL.MediaName)
+	} else if mediaURL.Purpose == models.LivePhotoVideo {
+		var err error
+		cachedPath, err = mediaURL.CachedPath()
+		if err != nil {
+			log.Error(r.Context(), "Can not get live photo video path", "error", err)
+			w.WriteHeader(http.StatusNotFound)
+			w.Write([]byte("not found"))
+			return
+		}
 	} else {
 		log.Error(r.Context(), "Can not handle media_purpose for video",
 			"purpose", mediaURL.Purpose,
@@ -79,7 +88,7 @@ func handleVideoRequest(
 	}
 
 	if _, err := os.Stat(cachedPath); err != nil {
-		if !os.IsNotExist(err) {
+		if !os.IsNotExist(err) || mediaURL.Purpose == models.LivePhotoVideo {
 			log.Error(r.Context(), "cached video access error",
 				"error", err,
 				"media ID", media.ID,

@@ -16,6 +16,7 @@ type Loaders struct {
 	MediaThumbnail      *MediaURLLoader
 	MediaHighres        *MediaURLLoader
 	MediaVideoWeb       *MediaURLLoader
+	MediaLivePhotoVideo *MediaURLLoader
 	UserFromAccessToken *UserLoader
 	UserMediaFavorite   *UserFavoritesLoader
 }
@@ -28,6 +29,7 @@ func Middleware(db *gorm.DB) mux.MiddlewareFunc {
 				MediaThumbnail:      NewThumbnailMediaURLLoader(db),
 				MediaHighres:        NewHighresMediaURLLoader(db),
 				MediaVideoWeb:       NewVideoWebMediaURLLoader(db),
+				MediaLivePhotoVideo: NewLivePhotoVideoMediaURLLoader(db),
 				UserFromAccessToken: NewUserLoaderByToken(db),
 				UserMediaFavorite:   NewUserFavoriteLoader(db),
 			})
