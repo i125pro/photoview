@@ -54,6 +54,7 @@ Password: **demo**
   - [Demo site](#demo-site)
   - [Contents](#contents)
   - [Main features](#main-features)
+    - [Live Photos (实况照片)](#live-photos-实况照片)
   - [Supported platforms](#supported-platforms)
   - [Supported databases](#supported-databases)
   - [Why yet another self-hosted photo gallery](#why-yet-another-self-hosted-photo-gallery)
@@ -75,6 +76,7 @@ Password: **demo**
 
 ## Main features
 
+- **Live Photos (实况照片) support**. Native Apple Live Photos support with interactive playback (long-press and toggle), thumbnail iris badge, automatic companion video pairing (`.HEIC`/`.JPG` + `.MOV`/`.MP4`), timeline deduplication, and a zero-transcode streaming architecture optimized for low-resource ARM SBCs (e.g. Raspberry Pi, V50 TV box) and NAS.
 - **Closely tied to the file system**. The website presents the images found on the local filesystem of the server; directories are mapped to albums.
 - **User management**. Each user is created along with a path on the local filesystem, photos within that path can be accessed by that user.
 - **Sharing**. Albums, as well as individual media, can easily be shared with a public link, the link can optionally be password protected.
@@ -83,6 +85,17 @@ Password: **demo**
 - **Face recognition**. Faces will automatically be detected in photos, and photos of the same person will be grouped together.
 - **Performant**. Thumbnails are automatically generated and photos first load when they are visible on the screen. In full screen, thumbnails are displayed until the high-resolution image has been fully loaded.
 - **Secure**. All media resources are protected with a cookie-token, all passwords are properly hashed, and the API uses a strict [CORS policy](https://developer.mozilla.org/en-US/docs/Web/HTTP/CORS).
+
+### Live Photos (实况照片)
+
+Photoview includes native, high-performance support for Apple Live Photos and Motion Photos:
+- **Automatic Pairing & Deduplication**: Companion video files (`IMG_xxxx.MOV` or `IMG_xxxx.MP4`) matching photo files (`IMG_xxxx.HEIC`, `IMG_xxxx.JPG`, etc.) are automatically detected and linked to the primary photo. Companion videos are hidden from the album/timeline grid as standalone entries, avoiding clutter and duplicate thumbnails.
+- **Zero-Transcoding Architecture (Lightweight & Low Power)**: No server-side video transcoding or GIF/WebP conversion is performed. The native video stream is served directly via HTTP 206 Byte-Range requests and hardware-decoded on client devices (phones, tablets, browsers). This ensures **zero CPU/RAM encoding spike** on low-power servers, SBCs, and NAS devices (such as ARM V50 boxes, Raspberry Pi).
+- **Zero Duplicate Thumbnail Overhead**: Companion videos reuse the primary photo's WebP thumbnail and blurhash, skipping expensive server-side `ffmpeg` video frame extraction.
+- **Interactive Apple-Style Playback**:
+  - **Thumbnail Badge**: Photos with companion videos display an authentic iOS-style concentric ring iris badge and "LIVE" label.
+  - **Press-and-Hold**: Click and hold the mouse button (desktop) or press and hold the screen (mobile/touch) to seamlessly preview the Live Photo animation. Releasing instantly returns to the crisp high-resolution photo.
+  - **LIVE Pill Toggle**: Click the floating "LIVE" button in fullscreen presentation mode to toggle video playback.
 
 ## Supported platforms
 
